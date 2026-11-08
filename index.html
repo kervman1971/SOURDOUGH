@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sourdough">
+<title>Sourdough Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF3E6; --card:#FFFDF7; --ink:#46332A; --muted:#8A7264;
+    --terra:#BC5B34; --terra-dark:#9A4826; --terra-soft:#F6E3D3;
+    --wheat:#EBD9B4; --line:#EADFCB; --good:#5F7D4F; --good-soft:#E7EDDD;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;
+    font-size:17px; line-height:1.45;
+    padding-bottom:110px;
+  }
+  h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif;}
+  header{
+    background:linear-gradient(160deg,#C96F42,#BC5B34 55%,#A34E2B);
+    color:#FFF7EA; padding:26px 20px 22px;
+    border-radius:0 0 26px 26px;
+    box-shadow:0 4px 18px rgba(154,72,38,.25);
+  }
+  header .wrap{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+  header h1{margin:0;font-size:27px;line-height:1.15;}
+  header p{margin:3px 0 0;font-size:15px;opacity:.92;}
+  .loaf-badge{
+    flex:0 0 auto;width:56px;height:56px;border-radius:16px;
+    background:rgba(255,247,234,.16);display:flex;align-items:center;justify-content:center;
+  }
+  main{max-width:640px;margin:0 auto;padding:18px 16px 0;}
+  section.tab{display:none;}
+  section.tab.active{display:block;animation:fade .18s ease-in;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;margin:0 0 16px;box-shadow:0 2px 8px rgba(70,51,42,.05);
+  }
+  .card h2{margin:0 0 6px;font-size:21px;}
+  .card h3{margin:0 0 6px;font-size:18px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 12px;}
+  label.flabel{display:block;font-weight:800;font-size:14px;letter-spacing:.02em;margin:14px 0 6px;color:var(--ink);}
+  label.flabel:first-child{margin-top:0;}
+  input[type=text],input[type=number],input[type=datetime-local],select,textarea{
+    width:100%;font:inherit;font-size:17px;color:var(--ink);
+    background:#FFF;border:1.5px solid var(--line);border-radius:12px;
+    padding:13px 14px;appearance:none;
+  }
+  textarea{min-height:84px;resize:vertical;}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--terra);outline-offset:1px;border-color:var(--terra);}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:54px;padding:13px 22px;border:none;border-radius:14px;cursor:pointer;
+    font:inherit;font-weight:800;font-size:17px;text-decoration:none;
+    background:var(--terra);color:#FFF7EA;width:100%;
+    box-shadow:0 3px 10px rgba(188,91,52,.3);
+  }
+  .btn:active{background:var(--terra-dark);}
+  .btn.secondary{background:var(--terra-soft);color:var(--terra-dark);box-shadow:none;}
+  .btn.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1.5px solid var(--line);}
+  .btn.small{min-height:44px;padding:9px 16px;font-size:15px;width:auto;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    border:1.5px solid var(--line);background:#FFF;color:var(--ink);
+    border-radius:999px;padding:11px 16px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;min-height:48px;
+  }
+  .chip.sel{background:var(--terra);border-color:var(--terra);color:#FFF7EA;}
+  .seg{display:flex;background:var(--terra-soft);border-radius:14px;padding:4px;gap:4px;}
+  .seg button{
+    flex:1;border:none;background:transparent;font:inherit;font-weight:800;font-size:16px;
+    padding:12px 8px;border-radius:11px;cursor:pointer;color:var(--terra-dark);min-height:50px;
+  }
+  .seg button.sel{background:#FFF;color:var(--ink);box-shadow:0 2px 6px rgba(70,51,42,.12);}
+  .statusline{font-size:19px;font-weight:800;margin:2px 0;}
+  .statusline .when{color:var(--terra-dark);}
+  .overdue{color:#B03A2E;}
+  .ready{
+    border-radius:14px;padding:14px 16px;margin-top:12px;font-size:16px;
+  }
+  .ready.yes{background:var(--good-soft);}
+  .ready.notyet{background:#FBF0DC;}
+  .ready ul{margin:8px 0 0;padding:0;list-style:none;}
+  .ready li{padding:4px 0;display:flex;gap:9px;align-items:flex-start;}
+  .ready .mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-weight:800;font-size:14px;}
+  .ready .mark.ok{background:var(--good);color:#fff;}
+  .ready .mark.no{background:#D9C6A5;color:#7A6248;}
+  .feeditem{
+    display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);align-items:flex-start;
+  }
+  .feeditem:last-child{border-bottom:none;}
+  .feeditem .grow{flex:1;}
+  .feeditem .when{font-weight:800;}
+  .feeditem .meta{color:var(--muted);font-size:15px;}
+  .feeditem .note{font-size:15px;margin-top:2px;}
+  .del{
+    flex:0 0 auto;border:none;background:#F8E9E2;color:#B03A2E;border-radius:10px;
+    width:42px;height:42px;font-size:18px;cursor:pointer;font-weight:800;
+  }
+  .empty{color:var(--muted);text-align:center;padding:14px 6px;font-size:16px;}
+  .recipecard{
+    display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px;margin:0 0 14px;cursor:pointer;font:inherit;color:var(--ink);
+    box-shadow:0 2px 8px rgba(70,51,42,.05);
+  }
+  .recipecard h3{margin:0 0 4px;font-size:20px;font-family:'Fraunces',Georgia,serif;}
+  .recipecard p{margin:0;color:var(--muted);font-size:15px;}
+  .recipecard .go{color:var(--terra);font-weight:800;font-size:15px;margin-top:8px;display:block;}
+  table.ing{width:100%;border-collapse:collapse;margin:6px 0 4px;}
+  table.ing td,table.ing th{padding:9px 4px;border-bottom:1px solid var(--line);text-align:left;font-size:16px;}
+  table.ing td.g,table.ing th.g{text-align:right;font-weight:800;white-space:nowrap;}
+  table.ing td.p,table.ing th.p{text-align:right;color:var(--muted);white-space:nowrap;width:64px;}
+  table.ing tr:last-child td{border-bottom:none;}
+  ol.method{margin:6px 0 0;padding-left:22px;}
+  ol.method li{padding:7px 0;border-bottom:1px dashed var(--line);}
+  ol.method li:last-child{border-bottom:none;}
+  ol.method b{color:var(--terra-dark);}
+  .scalerow{display:flex;gap:10px;align-items:flex-end;}
+  .scalerow .fld{flex:1;}
+  .stepper{display:flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#FFF;}
+  .stepper button{
+    width:52px;height:52px;border:none;background:var(--terra-soft);color:var(--terra-dark);
+    font-size:24px;font-weight:800;cursor:pointer;flex:0 0 auto;
+  }
+  .stepper .val{flex:1;text-align:center;font-weight:800;font-size:18px;}
+  .nextup{
+    background:linear-gradient(150deg,#C96F42,#BC5B34);color:#FFF7EA;border:none;
+  }
+  .nextup h2{color:#FFF7EA;}
+  .nextup .big{font-size:26px;font-weight:800;line-height:1.25;margin:4px 0;}
+  .nextup .clock{font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:700;}
+  .nextup p{opacity:.94;margin:4px 0 0;}
+  .timeline{margin:4px 0 0;padding:0;list-style:none;}
+  .timeline li{
+    display:flex;gap:12px;padding:13px 10px;border-radius:14px;align-items:flex-start;cursor:pointer;
+  }
+  .timeline li + li{border-top:1px solid var(--line);}
+  .timeline li.next{background:var(--terra-soft);}
+  .timeline li.done{opacity:.55;}
+  .timeline li.done .t-label{text-decoration:line-through;}
+  .timeline .t-time{
+    flex:0 0 86px;font-weight:800;font-size:15px;color:var(--terra-dark);padding-top:3px;line-height:1.3;
+  }
+  .timeline .t-body{flex:1;}
+  .timeline .t-label{font-weight:800;font-size:17px;}
+  .timeline .t-desc{color:var(--muted);font-size:15px;margin-top:1px;}
+  .timeline .box{
+    flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:2.5px solid var(--terra);
+    margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:19px;background:#fff;
+  }
+  .timeline li.done .box{background:var(--terra);}
+  .timeline li.fold .t-label{color:var(--terra-dark);}
+  .hintbox{
+    background:#FBF0DC;border-radius:14px;padding:13px 15px;font-size:15px;margin-top:12px;
+  }
+  nav.bottom{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,253,247,.97);border-top:1px solid var(--line);
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    display:flex;gap:8px;max-width:640px;margin:0 auto;
+    box-shadow:0 -3px 14px rgba(70,51,42,.07);
+  }
+  nav.bottom button{
+    flex:1;border:none;background:transparent;font:inherit;cursor:pointer;color:var(--muted);
+    font-weight:800;font-size:14.5px;padding:8px 4px 6px;border-radius:13px;min-height:60px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  nav.bottom button svg{width:26px;height:26px;}
+  nav.bottom button.sel{background:var(--terra-soft);color:var(--terra-dark);}
+  .backlink{
+    display:inline-flex;align-items:center;gap:6px;border:none;background:transparent;cursor:pointer;
+    font:inherit;font-weight:800;color:var(--terra);font-size:16px;padding:8px 0;margin-bottom:6px;min-height:44px;
+  }
+  .savedmsg{color:var(--good);font-weight:800;font-size:14.5px;min-height:20px;margin-top:6px;}
+  .footer-note{color:var(--muted);font-size:14.5px;text-align:center;padding:8px 10px 0;}
+  .row2{display:flex;gap:10px;}
+  .row2 > *{flex:1;}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="loaf-badge" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 48 48" fill="none"><path d="M6 30c0-8 8-14 18-14s18 6 18 14c0 2-1 3-3 3H9c-2 0-3-1-3-3Z" fill="#FFF7EA"/><path d="M15 24c2 1 3 3 3 5M24 22c2 1 3 3 3 5M33 24c2 1 3 3 3 5" stroke="#BC5B34" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <h1>Sourdough Companion</h1>
+      <p>Your starter, your recipes, your bake day.</p>
+    </div>
+  </div>
+</header>
+<main>
+  <!-- ============ STARTER TAB ============ -->
+  <section class="tab active" id="tab-starter">
+    <div class="card">
+      <h2>Meet your starter</h2>
+      <p class="sub">Give it a name — every good starter has one.</p>
+      <label class="flabel" for="starterName">Starter's name</label>
+      <div class="row2">
+        <input type="text" id="starterName" placeholder="e.g. Doughbi-Wan" autocomplete="off">
+        <button class="btn secondary" id="saveNameBtn" style="flex:0 0 110px;">Save</button>
+      </div>
+      <label class="flabel">Where does it live?</label>
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="counter">On the counter</button>
+        <button type="button" data-mode="fridge">In the fridge</button>
+      </div>
+      <p class="sub" id="modeHint" style="margin-top:10px;"></p>
+    </div>
+
+    <div class="card" id="statusCard">
+      <h2>How it's doing</h2>
+      <div id="statusBody"></div>
+      <div class="ready" id="readyBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>Log a feeding</h2>
+      <p class="sub">Fed it? Tap it in — takes five seconds.</p>
+      <label class="flabel" for="feedWhen">When</label>
+      <input type="datetime-local" id="feedWhen">
+      <label class="flabel" for="feedFlour">Flour you added (grams)</label>
+      <input type="number" id="feedFlour" inputmode="numeric" min="1" placeholder="e.g. 30">
+      <label class="flabel">Feeding ratio</label>
+      <div class="chips" id="ratioChips">
+        <button type="button" class="chip" data-ratio="1:1:1">1:1:1</button>
+        <button type="button" class="chip" data-ratio="1:2:2">1:2:2</button>
+        <button type="button" class="chip" data-ratio="1:3:3">1:3:3</button>
+        <button type="button" class="chip" data-ratio="1:5:5">1:5:5</button>
+        <button type="button" class="chip" data-ratio="1:10:10">1:10:10</button>
+      </div>
+      <p class="sub" style="margin-top:8px;">Ratio means starter : flour : water. Bigger numbers = a bigger meal, so it stays happy longer.</p>
+      <label class="flabel">How did it rise?</label>
+      <div class="chips" id="riseChips">
+        <button type="button" class="chip" data-rise="none">Didn't rise</button>
+        <button type="button" class="chip" data-rise="some">Rose a little</button>
+        <button type="button" class="chip" data-rise="doubled">Doubled</button>
+        <button type="button" class="chip" data-rise="tripled">Tripled</button>
+      </div>
+      <label class="flabel" for="feedNote">Note (optional)</label>
+      <input type="text" id="feedNote" placeholder="e.g. very bubbly, smelled fruity" autocomplete="off">
+      <div style="height:16px"></div>
+      <button class="btn" id="addFeedBtn">Save feeding</button>
+      <div class="savedmsg" id="feedSaved"></div>
+    </div>
+
+    <div class="card">
+      <h2>Feeding history</h2>
+      <div id="feedHistory"></div>
+    </div>
+
+    <p class="footer-note">Tip: add this app to your home screen — tap the Share button in Safari, then “Add to Home Screen”. Everything you enter is saved on this phone only.</p>
+  </section>
+
+  <!-- ============ RECIPES TAB ============ -->
+  <section class="tab" id="tab-recipes">
+    <div id="recipeListView">
+      <div class="card">
+        <h2>Recipes</h2>
+        <p class="sub">Tap a recipe to open it. You can change the size — every amount recalculates for you.</p>
+      </div>
+      <div id="recipeList"></div>
+    </div>
+    <div id="recipeDetailView" style="display:none;">
+      <button class="backlink" id="backToRecipes">← All recipes</button>
+      <div class="card">
+        <h2 id="rdName"></h2>
+        <p class="sub" id="rdDesc"></p>
+        <label class="flabel">Total flour (grams)</label>
+        <div class="scalerow">
+          <div class="fld"><input type="number" id="rdFlour" inputmode="numeric" min="50" step="10"></div>
+        </div>
+        <label class="flabel">How many loaves / batches?</label>
+        <div class="stepper">
+          <button type="button" id="loafMinus" aria-label="Fewer loaves">−</button>
+          <div class="val" id="rdLoaves">1</div>
+          <button type="button" id="loafPlus" aria-label="More loaves">+</button>
+        </div>
+        <p class="sub" style="margin-top:10px;">Percentages are “baker's percentages” — everything is weighed against the flour, which always counts as 100%.</p>
+        <h3>Ingredients</h3>
+        <table class="ing">
+          <thead><tr><th>Ingredient</th><th class="p">%</th><th class="g">Amount</th></tr></thead>
+          <tbody id="rdIngredients"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Method</h3>
+        <ol class="method" id="rdMethod"></ol>
+      </div>
+      <div class="card">
+        <h3>My notes on this recipe</h3>
+        <p class="sub">What worked, what didn't, what to try next time.</p>
+        <textarea id="rdNotes" placeholder="e.g. Baked 5 minutes longer — crust was perfect."></textarea>
+        <div style="height:12px"></div>
+        <button class="btn secondary" id="saveNotesBtn">Save notes</button>
+        <div class="savedmsg" id="notesSaved"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BAKE DAY TAB ============ -->
+  <section class="tab" id="tab-plan">
+    <div id="planSetup">
+      <div class="card">
+        <h2>Plan a bake day</h2>
+        <p class="sub">Pick what you're baking and when you want the bread out of the oven. The app works backwards and gives you the whole schedule — every stretch-and-fold included, each with its own time.</p>
+        <label class="flabel" for="planRecipe">Recipe</label>
+        <select id="planRecipe"></select>
+        <label class="flabel" for="planTarget">Bread out of the oven at…</label>
+        <input type="datetime-local" id="planTarget">
+        <label class="flabel">Stretch-and-folds during bulk</label>
+        <p class="sub" style="margin-bottom:8px;">How often?</p>
+        <div class="chips" id="foldIntervalChips">
+          <button type="button" class="chip" data-min="20">Every 20 min</button>
+          <button type="button" class="chip" data-min="30">Every 30 min</button>
+          <button type="button" class="chip" data-min="45">Every 45 min</button>
+          <button type="button" class="chip" data-min="60">Every 60 min</button>
+        </div>
+        <label class="flabel">How many sets of folds?</label>
+        <div class="stepper">
+          <button type="button" id="foldMinus" aria-label="Fewer fold sets">−</button>
+          <div class="val" id="foldSetsVal">4 sets</div>
+          <button type="button" id="foldPlus" aria-label="More fold sets">+</button>
+        </div>
+        <div class="hintbox">These times are a friendly guide, not a rule book. Dough moves faster in a warm kitchen and slower in a cold one — if yours looks ready early, trust your eyes and adjust.</div>
+      </div>
+      <div class="card">
+        <h3>Your schedule</h3>
+        <p class="sub">A preview. When it looks right, start the plan and tick steps off as you go.</p>
+        <ul class="timeline" id="planPreview"></ul>
+        <div style="height:14px"></div>
+        <button class="btn" id="startPlanBtn">Start this plan</button>
+      </div>
+    </div>
+
+    <div id="planRunning" style="display:none;">
+      <div class="card nextup" id="nextUpCard"></div>
+      <div class="card">
+        <h3 id="runTitle">Bake day</h3>
+        <p class="sub">Tap a step to tick it off. The next one coming up is highlighted.</p>
+        <ul class="timeline" id="planTimeline"></ul>
+        <div style="height:14px"></div>
+        <button class="btn ghost" id="endPlanBtn">End plan &amp; start over</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Same-day baking?</h3>
+      <p class="sub" style="margin-bottom:0;">Discard Pancakes don't need a plan — they're mixed and fried the same morning. Find them under Recipes.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom">
+  <button type="button" data-tab="starter" class="sel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 3h10M8 3v3c-1.5 1-2.5 2.6-2.5 4.5 0 1 .3 2 .8 2.8L5 21h14l-1.3-7.7c.5-.8.8-1.8.8-2.8C18.5 8.6 17.5 7 16 6V3"/><path d="M5.5 14h13"/></svg>
+    Starter
+  </button>
+  <button type="button" data-tab="recipes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 18V5.5M8 7h8M8 10.5h5"/></svg>
+    Recipes
+  </button>
+  <button type="button" data-tab="plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+    Bake Day
+  </button>
+</nav>
+
+<script>
+"use strict";
+/* ================= DATA ================= */
+var RECIPES = [
+  {
+    id:"country", name:"Classic Country Loaf",
+    desc:"The everyday loaf — crackly crust, open crumb, gentle tang. Baked in a Dutch oven.",
+    baseFlour:500,
+    ingredients:[
+      {name:"Bread flour", pct:90},
+      {name:"Whole wheat flour", pct:10},
+      {name:"Water", pct:75},
+      {name:"Starter (ripe, recently fed)", pct:20},
+      {name:"Sea salt", pct:2}
+    ],
+    method:[
+      "<b>The night before:</b> Feed your starter and leave it on the counter to ripen (about 8 hours).",
+      "<b>Autolyse (1 hour):</b> Mix both flours and the water until no dry bits remain. Cover and rest 1 hour.",
+      "<b>Mix:</b> Add the starter and salt. Pinch and fold the dough over itself until everything is mixed in. Cover.",
+      "<b>Bulk fermentation (about 4 hours):</b> Let the dough rise at room temperature. <b>Do 4 sets of stretch-and-folds, one every 30 minutes, over the first 2 hours</b> — with wet hands, stretch one side of the dough up and fold it over; turn the bowl and repeat 4 times per set. After the last set, leave the dough undisturbed for the rest of bulk. It's ready when it has grown by about half and feels puffy.",
+      "<b>Shape:</b> Tip the dough onto a lightly floured counter, shape it into a round, and place it seam-side up in a floured basket or a bowl lined with a floured tea towel.",
+      "<b>Cold proof:</b> Cover and put it in the fridge for 12 to 16 hours (overnight is perfect).",
+      "<b>Preheat:</b> Put your Dutch oven in the oven and heat to 500°F (260°C) for a full hour.",
+      "<b>Bake:</b> Turn the loaf out onto parchment, score the top, and lower it into the hot pot. Lid on: 20 minutes at 450°F (230°C). Lid off: 20–25 minutes more, until deep golden brown.",
+      "<b>Cool:</b> Wait at least 2 hours before slicing — the inside is still finishing."
+    ],
+    planner:{starterRise:480, autolyse:60, bulk:240, shape:20, proof:720, proofLabel:"Into the fridge (cold proof)", proofDesc:"Cover the basket and refrigerate. 12 hours is the plan; up to 16 is fine.", preheat:60, bake:45, bakeDesc:"Dutch oven, lid on then off. Out of the oven at your target time.", mixLabel:"Add starter & salt, mix", autolyseLabel:"Mix flour & water (autolyse)"}
+  },
+  {
+    id:"sandwich", name:"Soft Sandwich Loaf",
+    desc:"Soft, sliceable, lightly sweet — the one for toast and sandwiches. Bakes in a loaf tin.",
+    baseFlour:500,
+    ingredients:[
+      {name:"Bread flour", pct:100},
+      {name:"Milk (or water)", pct:60},
+      {name:"Starter (ripe, recently fed)", pct:20},
+      {name:"Honey", pct:4},
+      {name:"Soft butter", pct:6},
+      {name:"Sea salt", pct:2}
+    ],
+    method:[
+      "<b>The night before:</b> Feed your starter and leave it on the counter to ripen (about 8 hours).",
+      "<b>Mix:</b> Stir everything together except the butter until shaggy, then work the soft butter in a spoonful at a time. Knead about 8 minutes, until smooth and stretchy.",
+      "<b>Bulk fermentation (about 3 hours):</b> Cover and let it rise at room temperature. <b>Do 3 sets of stretch-and-folds, one every 30 minutes, over the first 1½ hours</b> — stretch one side up and over, turn the bowl, repeat 4 times per set. Then leave it undisturbed to finish rising until nearly doubled.",
+      "<b>Shape:</b> Pat the dough into a rectangle, roll it up snugly, and place it seam-down in a buttered loaf tin (about 9 × 5 in).",
+      "<b>Proof:</b> Cover and let it rise on the counter about 2 hours, until it domes just above the rim of the tin.",
+      "<b>Bake:</b> 35 minutes at 375°F (190°C), until deep golden. Tent with foil for the last 10 minutes if it browns quickly.",
+      "<b>Cool:</b> Turn out of the tin after 10 minutes and cool fully before slicing."
+    ],
+    planner:{starterRise:480, autolyse:0, bulk:180, shape:15, proof:120, proofLabel:"Into the tin to rise", proofDesc:"Shaped loaf, covered, on the counter until it domes above the tin.", preheat:30, bake:35, bakeDesc:"Loaf tin at 375°F (190°C). Out of the oven at your target time.", mixLabel:"Mix the dough", autolyseLabel:""}
+  },
+  {
+    id:"focaccia", name:"Sourdough Focaccia",
+    desc:"Bubbly, olive-oily, dimpled — wonderful with soup or as sandwich bread. Bakes in a sheet pan.",
+    baseFlour:500,
+    ingredients:[
+      {name:"Bread flour", pct:100},
+      {name:"Water", pct:80},
+      {name:"Starter (ripe, recently fed)", pct:20},
+      {name:"Olive oil (in the dough)", pct:8},
+      {name:"Sea salt", pct:2.2},
+      {name:"More olive oil + flaky salt, for the pan and top", pct:0, fixed:"a generous glug"}
+    ],
+    method:[
+      "<b>The night before:</b> Feed your starter and leave it on the counter to ripen (about 8 hours).",
+      "<b>Mix:</b> Stir flour, water, starter, olive oil and salt together until no dry flour remains. Cover and rest 30 minutes.",
+      "<b>Bulk fermentation (about 3 hours):</b> Let the dough rise at room temperature. <b>Do 4 sets of stretch-and-folds (coil folds work beautifully here), one every 30 minutes, over the first 2 hours</b> — lift the middle of the dough and let the ends fold under, turn the bowl, repeat. Then leave it undisturbed to finish rising until bubbly.",
+      "<b>Into the pan:</b> Pour a generous glug of olive oil into a sheet pan (about 9 × 13 in). Tip the dough in, turn it once so it's oiled all over, and cover.",
+      "<b>Proof:</b> Let it rise about 2 hours, gently stretching it toward the corners now and then, until it's puffy and jiggly.",
+      "<b>Dimple &amp; top:</b> Oil your fingers and press straight down all over to dimple it. Sprinkle with flaky salt, rosemary, olives — whatever you love.",
+      "<b>Bake:</b> About 25 minutes at 450°F (230°C), until deeply golden and crisp at the edges.",
+      "<b>Cool:</b> Slide it onto a rack for at least 20 minutes before cutting."
+    ],
+    planner:{starterRise:480, autolyse:30, bulk:180, shape:10, proof:120, proofLabel:"Into the oiled pan to rise", proofDesc:"Dough in the oiled pan, covered, stretching it to the corners now and then.", preheat:30, bake:25, bakeDesc:"Sheet pan at 450°F (230°C), dimpled and topped just before. Out at your target time.", mixLabel:"Mix the dough", autolyseLabel:"Rest the mixed dough"}
+  },
+  {
+    id:"pancakes", name:"Discard Pancakes",
+    desc:"The happy use for starter you'd otherwise throw away. Same-morning, no planning needed.",
+    baseFlour:125,
+    ingredients:[
+      {name:"Plain flour", pct:100},
+      {name:"Starter discard (unfed is fine)", pct:160},
+      {name:"Milk", pct:80},
+      {name:"Egg", pct:40},
+      {name:"Melted butter", pct:24},
+      {name:"Sugar", pct:12},
+      {name:"Baking soda", pct:4},
+      {name:"Sea salt", pct:1.6}
+    ],
+    method:[
+      "<b>Mix:</b> Whisk the discard, milk, egg and melted butter together. Stir in the flour, sugar and salt until just combined — a few lumps are fine. Rest 10 minutes.",
+      "<b>Last touch:</b> Stir in the baking soda right before cooking. The batter will froth and lighten — that's the discard doing its work.",
+      "<b>Fry:</b> Ladle small pancakes into a buttered pan over medium heat. Flip when bubbles appear on the surface and the edges look set, about 2 minutes per side.",
+      "<b>Serve:</b> Warm, with maple syrup. Makes about 8 small pancakes; scale up freely for a crowd."
+    ],
+    planner:null
+  }
+];
+function recipeById(id){ for(var i=0;i<RECIPES.length;i++) if(RECIPES[i].id===id) return RECIPES[i]; return null; }
+
+/* ================= STATE ================= */
+var LS_KEY = "sourdoughCompanionV1";
+var state = loadState();
+function loadState(){
+  var d = { starterName:"", mode:"counter", feedings:[], notes:{}, scale:{}, plan:null,
+            feedDraft:{ratio:"1:2:2", rise:"doubled"}, planDraft:{recipeId:"country", interval:30, sets:4} };
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if(raw){ var s = JSON.parse(raw); for(var k in d){ if(s[k]!==undefined) d[k]=s[k]; } }
+  }catch(e){}
+  return d;
+}
+function saveState(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ================= HELPERS ================= */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function fmtDayTime(d){
+  var today = new Date(); var tom = new Date(); tom.setDate(today.getDate()+1);
+  var sameDay = d.toDateString()===today.toDateString();
+  var isTom = d.toDateString()===tom.toDateString();
+  var t = d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  if(sameDay) return "today at "+t;
+  if(isTom) return "tomorrow at "+t;
+  return d.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})+" at "+t;
+}
+function fmtTimeOnly(d){ return d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); }
+function fmtFeedWhen(d){
+  return d.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})+", "+fmtTimeOnly(d);
+}
+function agoText(d){
+  var mins = Math.max(0, Math.round((Date.now()-d.getTime())/60000));
+  if(mins<60) return mins+" min ago";
+  var h = Math.floor(mins/60);
+  if(h<48) return h+(h===1?" hour":" hours")+" ago";
+  var days = Math.floor(h/24);
+  return days+(days===1?" day":" days")+" ago";
+}
+function toLocalInput(d){
+  var p = function(n){ return (n<10?"0":"")+n; };
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());
+}
+function flash(el, msg){ el.textContent = msg; setTimeout(function(){ el.textContent=""; }, 2600); }
+var RISE_LABELS = {none:"Didn't rise", some:"Rose a little", doubled:"Doubled", tripled:"Tripled"};
+
+/* ================= TABS ================= */
+var navBtns = document.querySelectorAll("nav.bottom button");
+navBtns.forEach(function(b){
+  b.addEventListener("click", function(){
+    navBtns.forEach(function(x){ x.classList.toggle("sel", x===b); });
+    ["starter","recipes","plan"].forEach(function(t){
+      $("tab-"+t).classList.toggle("active", t===b.getAttribute("data-tab"));
+    });
+    window.scrollTo({top:0});
+  });
+});
+
+/* ================= STARTER ================= */
+function lastFeeding(){ return state.feedings.length ? state.feedings[0] : null; }
+
+function renderStarter(){
+  $("starterName").value = state.starterName || "";
+  document.querySelectorAll("#modeSeg button").forEach(function(b){
+    b.classList.toggle("sel", b.getAttribute("data-mode")===state.mode);
+  });
+  $("modeHint").textContent = state.mode==="counter"
+    ? "On the counter it eats fast — feed it about every 12 hours."
+    : "In the fridge it eats slowly — a feeding about once a week keeps it happy. Take it out and feed it the night before a bake day.";
+  // chip selections for the log form
+  document.querySelectorAll("#ratioChips .chip").forEach(function(c){
+    c.classList.toggle("sel", c.getAttribute("data-ratio")===state.feedDraft.ratio);
+  });
+  document.querySelectorAll("#riseChips .chip").forEach(function(c){
+    c.classList.toggle("sel", c.getAttribute("data-rise")===state.feedDraft.rise);
+  });
+  renderStatus();
+  renderHistory();
+}
+
+function nextFeedDue(from){
+  var d = new Date(from.getTime());
+  if(state.mode==="counter") d.setHours(d.getHours()+12);
+  else d.setDate(d.getDate()+7);
+  return d;
+}
+
+function renderStatus(){
+  var body = $("statusBody"), ready = $("readyBox");
+  var name = state.starterName ? esc(state.starterName) : "Your starter";
+  var lf = lastFeeding();
+  if(!lf){
+    body.innerHTML = '<p class="statusline">No feedings logged yet.</p><p class="sub" style="margin:0;">Log the first feeding below and this card will keep track of when the next one is due.</p>';
+    ready.className = "ready notyet";
+    ready.innerHTML = "<b>Ready to bake?</b><ul>"+
+      '<li><span class="mark no">–</span><span>Feed it first, then watch how it rises.</span></li></ul>';
+    return;
+  }
+  var lastD = new Date(lf.ts);
+  var due = nextFeedDue(lastD);
+  var now = new Date();
+  var overdue = now > due;
+  var hrsSince = (now - lastD)/3600000;
+  var html = '<p class="statusline">'+name+' was last fed <span class="when">'+agoText(lastD)+'</span>.</p>';
+  html += '<p class="statusline">Next feeding due: <span class="when'+(overdue?" overdue":"")+'">'+fmtDayTime(due)+'</span>'+(overdue?' — a little late is okay, just feed it when you can.':"")+'</p>';
+  body.innerHTML = html;
+
+  /* Ready-to-bake checklist */
+  var fedRecently = state.mode==="counter" ? hrsSince<=12 : hrsSince<=24*7;
+  var roseWell = lf.rise==="doubled" || lf.rise==="tripled";
+  var inPeak = state.mode==="counter" ? (hrsSince>=3 && hrsSince<=12) : hrsSince<=24;
+  var checks = [
+    {ok:fedRecently, text: state.mode==="counter" ? "Fed in the last 12 hours" : "Fed in the last week (then given a fresh feed to wake up)"},
+    {ok:roseWell, text:"Rose well after its last feeding — "+(RISE_LABELS[lf.rise]||"not recorded").toLowerCase()},
+    {ok:inPeak, text: state.mode==="counter" ? "In its happy window — a few hours after feeding, risen and bubbly" : "Woken up with a feed on the counter before baking"}
+  ];
+  var allOk = checks.every(function(c){ return c.ok; });
+  ready.className = "ready "+(allOk ? "yes" : "notyet");
+  var head = allOk
+    ? "<b>Yes — "+name+" looks ready to bake with.</b>"
+    : "<b>Not quite yet.</b> Here's what it still needs:";
+  ready.innerHTML = head + "<ul>" + checks.map(function(c){
+    return '<li><span class="mark '+(c.ok?"ok":"no")+'">'+(c.ok?"✓":"–")+'</span><span>'+esc(c.text)+'</span></li>';
+  }).join("") + "</ul>" + (allOk ? "" : '<p style="margin:8px 0 0;">A good feed and a few warm hours on the counter fix almost everything.</p>');
+}
+
+function renderHistory(){
+  var box = $("feedHistory");
+  if(!state.feedings.length){
+    box.innerHTML = '<p class="empty">No feedings yet. Your history will appear here.</p>';
+    return;
+  }
+  box.innerHTML = state.feedings.map(function(f){
+    var d = new Date(f.ts);
+    var meta = "Ratio "+f.ratio+(f.flour? " · "+f.flour+" g flour":"")+" · rose: "+(RISE_LABELS[f.rise]||"—");
+    return '<div class="feeditem"><div class="grow">'+
+      '<div class="when">'+fmtFeedWhen(d)+'</div>'+
+      '<div class="meta">'+esc(meta)+'</div>'+
+      (f.note? '<div class="note">'+esc(f.note)+'</div>' : "")+
+      '</div><button class="del" data-del="'+f.id+'" aria-label="Delete this feeding">×</button></div>';
+  }).join("");
+  box.querySelectorAll("[data-del]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var id = btn.getAttribute("data-del");
+      state.feedings = state.feedings.filter(function(f){ return String(f.id)!==String(id); });
+      saveState(); renderStarter();
+    });
+  });
+}
+
+$("saveNameBtn").addEventListener("click", function(){
+  state.starterName = $("starterName").value.trim();
+  saveState(); renderStarter();
+  flash($("feedSaved"), state.starterName ? "Name saved. Hello, "+state.starterName+"!" : "Name cleared.");
+});
+document.querySelectorAll("#modeSeg button").forEach(function(b){
+  b.addEventListener("click", function(){ state.mode = b.getAttribute("data-mode"); saveState(); renderStarter(); });
+});
+document.querySelectorAll("#ratioChips .chip").forEach(function(c){
+  c.addEventListener("click", function(){ state.feedDraft.ratio = c.getAttribute("data-ratio"); saveState(); renderStarter(); });
+});
+document.querySelectorAll("#riseChips .chip").forEach(function(c){
+  c.addEventListener("click", function(){ state.feedDraft.rise = c.getAttribute("data-rise"); saveState(); renderStarter(); });
+});
+$("addFeedBtn").addEventListener("click", function(){
+  var whenVal = $("feedWhen").value;
+  var when = whenVal ? new Date(whenVal) : new Date();
+  if(isNaN(when.getTime())) when = new Date();
+  var flour = parseInt($("feedFlour").value, 10);
+  state.feedings.unshift({
+    id: Date.now(),
+    ts: when.toISOString(),
+    flour: isNaN(flour) ? null : flour,
+    ratio: state.feedDraft.ratio,
+    rise: state.feedDraft.rise,
+    note: $("feedNote").value.trim()
+  });
+  state.feedings.sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); });
+  saveState();
+  $("feedNote").value = ""; $("feedFlour").value = "";
+  $("feedWhen").value = toLocalInput(new Date());
+  renderStarter();
+  flash($("feedSaved"), "Feeding saved. Happy starter!");
+});
+
+/* ================= RECIPES ================= */
+var currentRecipe = null;
+function renderRecipeList(){
+  $("recipeList").innerHTML = RECIPES.map(function(r){
+    return '<button class="recipecard" data-recipe="'+r.id+'"><h3>'+esc(r.name)+'</h3><p>'+esc(r.desc)+'</p><span class="go">Open recipe →</span></button>';
+  }).join("");
+  $("recipeList").querySelectorAll("[data-recipe]").forEach(function(b){
+    b.addEventListener("click", function(){ openRecipe(b.getAttribute("data-recipe")); });
+  });
+}
+function recipeScale(id){
+  if(!state.scale[id]) state.scale[id] = { flour: recipeById(id).baseFlour, loaves: 1 };
+  return state.scale[id];
+}
+function openRecipe(id){
+  currentRecipe = id;
+  var r = recipeById(id), sc = recipeScale(id);
+  $("recipeListView").style.display = "none";
+  $("recipeDetailView").style.display = "block";
+  $("rdName").textContent = r.name;
+  $("rdDesc").textContent = r.desc;
+  $("rdFlour").value = sc.flour;
+  $("rdLoaves").textContent = sc.loaves;
+  $("rdNotes").value = state.notes[id] || "";
+  $("rdMethod").innerHTML = r.method.map(function(s){ return "<li>"+s+"</li>"; }).join("");
+  renderIngredients();
+  window.scrollTo({top:0});
+}
+function renderIngredients(){
+  var r = recipeById(currentRecipe), sc = recipeScale(currentRecipe);
+  $("rdIngredients").innerHTML = r.ingredients.map(function(ing){
+    var amt;
+    if(ing.fixed) amt = ing.fixed;
+    else{
+      var g = ing.pct/100 * sc.flour * sc.loaves;
+      amt = (g>=100 ? Math.round(g) : Math.round(g*10)/10) + " g";
+    }
+    return "<tr><td>"+esc(ing.name)+'</td><td class="p">'+(ing.pct? ing.pct+"%" : "—")+'</td><td class="g">'+esc(amt)+"</td></tr>";
+  }).join("");
+}
+$("rdFlour").addEventListener("input", function(){
+  var v = parseInt($("rdFlour").value, 10);
+  if(!isNaN(v) && v>0){ recipeScale(currentRecipe).flour = v; saveState(); renderIngredients(); }
+});
+$("loafMinus").addEventListener("click", function(){
+  var sc = recipeScale(currentRecipe);
+  if(sc.loaves>1){ sc.loaves--; saveState(); $("rdLoaves").textContent = sc.loaves; renderIngredients(); }
+});
+$("loafPlus").addEventListener("click", function(){
+  var sc = recipeScale(currentRecipe);
+  if(sc.loaves<12){ sc.loaves++; saveState(); $("rdLoaves").textContent = sc.loaves; renderIngredients(); }
+});
+$("backToRecipes").addEventListener("click", function(){
+  $("recipeDetailView").style.display = "none";
+  $("recipeListView").style.display = "block";
+  window.scrollTo({top:0});
+});
+$("saveNotesBtn").addEventListener("click", function(){
+  state.notes[currentRecipe] = $("rdNotes").value;
+  saveState();
+  flash($("notesSaved"), "Notes saved on this phone.");
+});
+
+/* ================= BAKE-DAY PLANNER ================= */
+var PREHEAT_DESC = {
+  country:"Put the Dutch oven in the oven and heat to 500°F (260°C).",
+  sandwich:"Heat the oven to 375°F (190°C).",
+  focaccia:"Heat the oven to 450°F (230°C)."
+};
+function addMin(d, m){ return new Date(d.getTime() + m*60000); }
+function spanText(mins){
+  if(mins<60) return mins+" minutes";
+  var h = Math.floor(mins/60), m = mins%60;
+  return m ? "about "+h+" h "+m+" min" : "about "+h+(h===1?" hour":" hours");
+}
+
+/* Build the full step list by back-calculating from the out-of-oven time.
+   Bulk fermentation expands into one step per stretch-and-fold set. */
+function buildPlanSteps(recipe, target, interval, sets){
+  var P = recipe.planner;
+  var bakeStart  = addMin(target, -P.bake);
+  var proofStart = addMin(bakeStart, -P.proof);
+  var bulkEnd    = addMin(proofStart, -P.shape);
+  var bulkStart  = addMin(bulkEnd, -P.bulk);
+  var autoStart  = addMin(bulkStart, -P.autolyse);
+  var feedTime   = addMin(autoStart, -P.starterRise);
+  var steps = [];
+  steps.push({key:"feed", time:feedTime, fold:false,
+    label:"Feed your starter",
+    desc:"Give it a good feed at your usual ratio and leave it on the counter to ripen ("+spanText(P.starterRise)+")."});
+  if(P.autolyse>0){
+    steps.push({key:"autolyse", time:autoStart, fold:false,
+      label:P.autolyseLabel,
+      desc:"Mix until no dry bits remain, cover, and rest "+spanText(P.autolyse)+"."});
+  }
+  steps.push({key:"mix", time:bulkStart, fold:false,
+    label:P.mixLabel,
+    desc:"Bulk fermentation begins now — "+spanText(P.bulk)+" in total, folds first, then quiet rising."});
+  var lastFoldTime = null, foldCount = 0;
+  for(var k=1; k<=sets; k++){
+    var ft = addMin(bulkStart, interval*k);
+    if(ft >= bulkEnd) break;
+    foldCount++;
+    steps.push({key:"fold"+k, time:ft, fold:true,
+      label:"Stretch-and-fold #"+k,
+      desc:"With wet hands: stretch one side of the dough up and fold it over, turn the bowl a quarter turn, and repeat 4 times. Set "+k+" of "+sets+"."});
+    lastFoldTime = ft;
+  }
+  var restStart = lastFoldTime || bulkStart;
+  steps.push({key:"rest", time:restStart, fold:false,
+    label:"Rest — undisturbed rising",
+    desc:"No more folds. Leave the dough covered and undisturbed until shaping at "+fmtTimeOnly(bulkEnd)+" ("+spanText(Math.round((bulkEnd-restStart)/60000))+" of quiet rising)."});
+  steps.push({key:"shape", time:bulkEnd, fold:false,
+    label: recipe.id==="focaccia" ? "Tip the dough into the oiled pan" : "Shape the loaf",
+    desc:"Be gentle — you worked hard for those bubbles."});
+  steps.push({key:"proof", time:proofStart, fold:false,
+    label:P.proofLabel, desc:P.proofDesc+" ("+spanText(P.proof)+")."});
+  steps.push({key:"preheat", time:addMin(bakeStart, -P.preheat), fold:false,
+    label:"Turn the oven on (preheat)", desc:PREHEAT_DESC[recipe.id]||"Heat the oven to the recipe's baking temperature."});
+  steps.push({key:"bake", time:bakeStart, fold:false,
+    label:"Into the oven", desc:P.bakeDesc});
+  steps.push({key:"out", time:target, fold:false,
+    label:"Out of the oven — done!",
+    desc:"Onto a rack to cool. The hardest step of all: waiting to slice."});
+  return {steps:steps, foldCount:foldCount, feedTime:feedTime};
+}
+
+function timelineHTML(steps, doneMap, clickable){
+  return steps.map(function(s){
+    return {s:s, done: !!(doneMap && doneMap[s.key])};
+  }).map(function(o, i, arr){
+    var nextIdx = -1;
+    if(doneMap){ for(var j=0;j<arr.length;j++){ if(!arr[j].done){ nextIdx=j; break; } } }
+    var cls = (o.done?"done":"") + (i===nextIdx?" next":"") + (o.s.fold?" fold":"");
+    return '<li class="'+cls.trim()+'" '+(clickable? 'data-step="'+o.s.key+'"':"")+' role="'+(clickable?"button":"")+'">'+
+      '<div class="t-time">'+fmtTimeOnly(o.s.time)+'<br><span style="font-weight:600;color:var(--muted);font-size:13px;">'+o.s.time.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})+'</span></div>'+
+      '<div class="t-body"><div class="t-label">'+esc(o.s.label)+'</div><div class="t-desc">'+esc(o.s.desc)+'</div></div>'+
+      '<div class="box">'+(o.done?"✓":"")+'</div></li>';
+  }).join("");
+}
+
+function renderPlanSetup(){
+  var draft = state.planDraft;
+  document.querySelectorAll("#foldIntervalChips .chip").forEach(function(c){
+    c.classList.toggle("sel", parseInt(c.getAttribute("data-min"),10)===draft.interval);
+  });
+  $("foldSetsVal").textContent = draft.sets + (draft.sets===1?" set":" sets");
+  var r = recipeById(draft.recipeId);
+  var targetVal = $("planTarget").value;
+  var target = targetVal ? new Date(targetVal) : new Date();
+  if(isNaN(target.getTime())) target = new Date();
+  var built = buildPlanSteps(r, target, draft.interval, draft.sets);
+  var warn = "";
+  if(built.feedTime < new Date())
+    warn = '<div class="hintbox" style="margin:0 0 12px;">Heads up: with this finish time, the schedule would start in the past (the starter feed lands '+fmtDayTime(built.feedTime)+'). Pick a later “out of the oven” time.</div>';
+  if(built.foldCount < draft.sets)
+    warn += '<div class="hintbox" style="margin:0 0 12px;">Only '+built.foldCount+' fold sets fit before shaping at this spacing — the rest of bulk is quiet, undisturbed rising, which is exactly how it should be.</div>';
+  $("planPreview").outerHTML = warn + '<ul class="timeline" id="planPreview">' + timelineHTML(built.steps, null, false) + "</ul>";
+}
+
+function renderPlan(){
+  var has = !!state.plan;
+  $("planSetup").style.display = has ? "none" : "block";
+  $("planRunning").style.display = has ? "block" : "none";
+  if(!has){ renderPlanSetup(); return; }
+  var plan = state.plan;
+  var r = recipeById(plan.recipeId);
+  var built = buildPlanSteps(r, new Date(plan.targetISO), plan.interval, plan.sets);
+  $("runTitle").textContent = "Bake day — "+r.name;
+  $("planTimeline").innerHTML = timelineHTML(built.steps, plan.done, true);
+  $("planTimeline").querySelectorAll("[data-step]").forEach(function(li){
+    li.addEventListener("click", function(){
+      var k = li.getAttribute("data-step");
+      plan.done[k] = !plan.done[k];
+      saveState(); renderPlan();
+    });
+  });
+  var next = null;
+  for(var i=0;i<built.steps.length;i++){ if(!plan.done[built.steps[i].key]){ next = built.steps[i]; break; } }
+  if(!next){
+    $("nextUpCard").innerHTML = "<h2>All steps done</h2><p class='big'>Enjoy your bread!</p><p>Every step is ticked off. Time to eat.</p>";
+  } else {
+    var headline = next.fold ? "Next fold" : "Next step";
+    $("nextUpCard").innerHTML =
+      "<h2>"+headline+"</h2>"+
+      '<div class="big">'+esc(next.label)+'</div>'+
+      '<div class="clock">'+fmtTimeOnly(next.time)+'</div>'+
+      "<p>"+fmtDayTime(next.time)+" · "+esc(next.desc)+"</p>";
+  }
+}
+
+document.querySelectorAll("#foldIntervalChips .chip").forEach(function(c){
+  c.addEventListener("click", function(){
+    state.planDraft.interval = parseInt(c.getAttribute("data-min"),10);
+    saveState(); renderPlanSetup();
+  });
+});
+$("foldMinus").addEventListener("click", function(){
+  if(state.planDraft.sets>1){ state.planDraft.sets--; saveState(); renderPlanSetup(); }
+});
+$("foldPlus").addEventListener("click", function(){
+  if(state.planDraft.sets<6){ state.planDraft.sets++; saveState(); renderPlanSetup(); }
+});
+$("planRecipe").addEventListener("change", function(){
+  state.planDraft.recipeId = $("planRecipe").value; saveState(); renderPlanSetup();
+});
+$("planTarget").addEventListener("change", renderPlanSetup);
+$("startPlanBtn").addEventListener("click", function(){
+  var targetVal = $("planTarget").value;
+  var target = targetVal ? new Date(targetVal) : new Date();
+  if(isNaN(target.getTime())) target = new Date();
+  state.plan = {
+    recipeId: state.planDraft.recipeId,
+    targetISO: target.toISOString(),
+    interval: state.planDraft.interval,
+    sets: state.planDraft.sets,
+    done: {},
+    startedAt: new Date().toISOString()
+  };
+  saveState(); renderPlan();
+  window.scrollTo({top:0});
+});
+$("endPlanBtn").addEventListener("click", function(){
+  state.plan = null; saveState(); renderPlan();
+  window.scrollTo({top:0});
+});
+
+/* ================= INIT ================= */
+(function init(){
+  // recipe select for planner (only recipes with a planner)
+  $("planRecipe").innerHTML = RECIPES.filter(function(r){ return !!r.planner; }).map(function(r){
+    return '<option value="'+r.id+'">'+esc(r.name)+"</option>";
+  }).join("");
+  $("planRecipe").value = state.planDraft.recipeId || "country";
+  // default target: tomorrow at 9:00 AM
+  var t = new Date(); t.setDate(t.getDate()+1); t.setHours(9,0,0,0);
+  $("planTarget").value = toLocalInput(t);
+  $("feedWhen").value = toLocalInput(new Date());
+  renderStarter();
+  renderRecipeList();
+  renderPlan();
+})();
+</script>
+</body>
+</html>
